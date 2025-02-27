@@ -1,48 +1,54 @@
-import React, { useState } from "react";
-import axios from "axios";
+import { useState } from "react";
 
 const Members = () => {
   const [fileName, setFileName] = useState("No file chosen");
-  const [file, setFile] = useState(null);
+  const [registrationMessage, setRegistrationMessage] = useState(""); // For registration messages
 
   const handleFileChange = (e) => {
-    const selectedFile = e.target.files[0];
-    setFileName(selectedFile ? selectedFile.name : "No file chosen");
-    setFile(selectedFile);
+    setFileName(e.target.files[0] ? e.target.files[0].name : "No file chosen");
   };
 
-  const handleUpload = async () => {
-    if (!file) {
-      alert("Please select a file first.");
+  const handleRegister = (e) => {
+    e.preventDefault();
+
+    const name = e.target.name.value;
+    const password = e.target.password.value;
+
+    if (!name || !password) {
+      setRegistrationMessage("All fields are required!");
       return;
     }
 
-    const formData = new FormData();
-    formData.append("file", file);
+    const existingUsers = JSON.parse(localStorage.getItem("users")) || [];
 
-    try {
-      const response = await axios.post("http://localhost:5000/upload", formData, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-      });
-      alert(response.data.message);
-    } catch (error) {
-      console.error("Error uploading file:", error);
-      alert("File upload failed.");
+    if (existingUsers.some(user => user.name === name)) {
+      setRegistrationMessage("User already exists!");
+      return;
     }
+
+    const newUser = { name, password };
+    localStorage.setItem("users", JSON.stringify([...existingUsers, newUser]));
+
+    setRegistrationMessage("User registered successfully!");
+    e.target.reset(); // Clear the form
   };
 
-  return (
+  const handleClearUsers = () => {
+    localStorage.removeItem("users");
+    setRegistrationMessage("User data cleared!"); // Update message after clearing
+  };
+
+  return (    
     <div className="members-page">
       <h2>Members Page</h2>
       <div className="form-container">
-        <form>
-          <input type="text" placeholder="Name" required />
-          <input type="tel" placeholder="Phone Number" required />
-          <input type="password" placeholder="Password" required />
+        <form onSubmit={handleRegister}>
+          <input type="text" name="name" placeholder="Name" required />
+          <input type="password" name="password" placeholder="Password" required />
           <button type="submit">Register</button>
         </form>
+        <p>{registrationMessage}</p> {/* Display registration message */}
+
         <form>
           <input
             type="file"
@@ -54,10 +60,10 @@ const Members = () => {
             Choose File
           </label>
           <span id="file-name">{fileName}</span>
-          <button type="button" onClick={handleUpload}>
-            Upload
-          </button>
+          <button type="button">Upload</button> {/* You'll need to implement the upload logic */}
         </form>
+
+        <button onClick={handleClearUsers}>Clear All Users</button>
       </div>
     </div>
   );

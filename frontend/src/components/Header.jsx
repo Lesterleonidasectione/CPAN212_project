@@ -1,16 +1,22 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import PropTypes from "prop-types";
 
 const Header = ({ loggedInUser, setLoggedInUser }) => {
   const [name, setName] = useState("");
   const [password, setPassword] = useState("");
 
+  // Load stored user on mount
+  useEffect(() => {
+    const storedUser = localStorage.getItem("loggedInUser");
+    if (storedUser) {
+      setLoggedInUser(storedUser);
+    }
+  }, [setLoggedInUser]);
+
   const handleSignIn = () => {
     if (name && password) {
       localStorage.setItem("loggedInUser", name);
       setLoggedInUser(name);
-      setName("");
-      setPassword("");
     } else {
       alert("Please enter both name and password.");
     }
@@ -28,9 +34,7 @@ const Header = ({ loggedInUser, setLoggedInUser }) => {
         {loggedInUser ? (
           <>
             <span>Welcome, {loggedInUser}!</span>
-            <button className="sign-in-btn" onClick={handleSignOut}>
-              Log Out
-            </button>
+            <button className="sign-in-btn" onClick={handleSignOut}>Log Out</button>
           </>
         ) : (
           <>
@@ -48,9 +52,7 @@ const Header = ({ loggedInUser, setLoggedInUser }) => {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
             />
-            <button className="sign-in-btn" onClick={handleSignIn}>
-              Sign In
-            </button>
+            <button className="sign-in-btn" onClick={handleSignIn}>Sign In</button>
           </>
         )}
       </div>
@@ -58,6 +60,7 @@ const Header = ({ loggedInUser, setLoggedInUser }) => {
   );
 };
 
+// Define prop types after function
 Header.propTypes = {
   loggedInUser: PropTypes.string,
   setLoggedInUser: PropTypes.func.isRequired,

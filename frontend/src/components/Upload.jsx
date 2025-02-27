@@ -1,18 +1,21 @@
-import { useState } from "react";
+import  { useState } from "react";
 import axios from "axios";
 
-export default function Upload() {
-  const [selectedFiles, setSelectedFiles] = useState([]);
+const Upload = () => {
+  const [files, setFiles] = useState(null);
 
   const handleFileChange = (event) => {
-    setSelectedFiles(event.target.files);
+    setFiles(event.target.files);
   };
 
   const handleUpload = async () => {
+    if (!files) return alert("Please select files first!");
+
     const formData = new FormData();
-    for (let i = 0; i < selectedFiles.length; i++) {
-      formData.append("photos", selectedFiles[i]);
+    for (let i = 0; i < files.length; i++) {
+      formData.append("photos", files[i]);
     }
+
     try {
       const res = await axios.post("http://localhost:5000/photos/upload", formData, {
         headers: { "Content-Type": "multipart/form-data" },
@@ -20,15 +23,16 @@ export default function Upload() {
       alert(res.data.message);
     } catch (err) {
       console.error(err);
-      alert("Upload failed");
+      alert("Upload failed!");
     }
   };
 
   return (
     <div>
-      <h1>Upload Files</h1>
       <input type="file" multiple onChange={handleFileChange} />
       <button onClick={handleUpload}>Upload</button>
     </div>
   );
-}
+};
+
+export default Upload;
