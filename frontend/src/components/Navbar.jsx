@@ -1,4 +1,3 @@
-
 import { Link } from "react-router-dom";
 
 const Navbar = () => {
@@ -9,6 +8,7 @@ const Navbar = () => {
       <Link to="/services">Services</Link>
       <Link to="/members">Members</Link>
       <Link to="/comments">Comments</Link>
+      <Link to="/community">Community</Link>
     </nav>
   );
 };
